@@ -9,7 +9,8 @@ import chatmol_fn as cfn
 
 
 class ConversationHandler:
-    def __init__(self, client, cfn, model_name="gpt-4o"):
+#    def __init__(self, client, cfn, model_name="gpt-4o"):
+    def __init__(self, client, cfn, model_name="gpt-4o-mini"):
         self.client = client
         self.model_name = model_name
         self.cfn = cfn

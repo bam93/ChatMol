@@ -1,4 +1,28 @@
 import types
+import unitymol_zmq
+
+#def execute_unitymol_command(self, cmd: str) -> dict:
+def execute_unitymol_command(self, command: str):
+
+    try:
+        # Execute the command
+        result = unitymol_zmq.unitymol.send_command(command)
+
+        return {
+            "success": result.get("success", False),
+            "result": result.get("result", ""),
+            "stdout": result.get("stdout", ""),
+            "command": command
+        }
+    except Exception as e:
+        print(f"Error executing command '{command}': {e}")
+        return {
+            "success": False,
+            "result": "",
+            "stdout": str(e),
+            "command": command
+        }
+
 
 def translate_to_protein(self, seq: str, pname=None):
     from Bio.Seq import Seq
@@ -155,7 +179,21 @@ def smiles_similarity(self, smiles1, smiles2, types="ECFP"):
     return f"Using {types} fingerprint and Tanimoto, the result is {similarity:.2f}"
 
 
-function_descriptions = [{  # This is the description of the function
+function_descriptions = [{ # This is the description of the function
+    "type": "function",
+    "function": {
+        "name": "execute_unitymol_command",
+        "description": "Execute a UnityMol API command and return the result.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "command": {"type": "string", "description": "The UnityMol API command to execute"},
+            },
+        },
+        "required": ["command"],
+    },
+},
+{  # This is the description of the function
     "type": "function",
     "function": {
         "name": "translate_to_protein",
@@ -237,6 +275,13 @@ function_descriptions = [{  # This is the description of the function
 }]
 
 test_data = {
+    "execute_unitymol_command": {
+        "input": {
+            "self": None,
+            "command": "getSelectionListString()",
+        },
+        "output": "The list of current selections as bracketed list",
+    },
     "translate_to_protein": {
         "input": {
             "self": None,

@@ -65,7 +65,7 @@ if project_id + str(openai_api_key) == "Project-X":
 
 model = st.sidebar.selectbox(
     "Model",
-    ["gpt-4o",  "gpt-4o-mini",  "deepseek-chat"],
+    ["gpt-4o-mini",  "gpt-4o",  "deepseek-chat"],
 )
 st.session_state["openai_model"] = model
 
@@ -109,6 +109,21 @@ else:
 
 m.update((openai_api_key + project_id).encode())
 hash_string = m.hexdigest()
+
+# UnityMol ZMQ
+# Update the ZMQ connection settings
+import unitymol_zmq
+#from unitymol_zmq import UnityMolZMQ
+# Global UnityMolZMQ instance
+unitymol_zmq.unitymol = None
+# Initialize UnityMolZMQ
+unitymol_zmq.unitymol = unitymol_zmq.UnityMolZMQ()
+# Test connection to UnityMol
+if not unitymol_zmq.unitymol.test_connection():
+    print("Failed to connect to UnityMol. Make sure it's running with the ZMQ server enabled.")
+    exit
+print("Successfully connected to UnityMol")
+
 
 # try to bring back the previous session
 work_dir = f"./{project_id}"
