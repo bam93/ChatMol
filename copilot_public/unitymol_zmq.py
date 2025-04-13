@@ -149,32 +149,35 @@ class UnityMolZMQ:
         """
         try:
             # Use a simple command that should always work if UnityMol is running
-#            result = self.send_command("getSelectionListString()")
-            result = self.send_command("UnityMolVersion.GetVersion()")
-            # If we got any response, consider the connection successful
-            return True
+            
+            # Envoyer un message de test
+            reply = self.send_command("import sys")
+            if reply['success']:
+                # If we got any response, consider the connection successful
+                return True
+
         except Exception as e:
             logger.error(f"Connection test failed: {e}")
             return False
 
 
-# Example usage
-if __name__ == "__main__":
-    # Create a UnityMolZMQ instance
-    unitymol = UnityMolZMQ()
+# # Example usage
+# if __name__ == "__main__":
+#     # Create a UnityMolZMQ instance
+#     unitymol = UnityMolZMQ()
     
-    # Test the connection
-    if unitymol.test_connection():
-        print("Successfully connected to UnityMol")
+#     # Test the connection
+#     if unitymol.test_connection():
+#         print("Successfully connected to UnityMol")
         
-        # Example: Get the list of selections
-        result = unitymol.send_command("getSelectionListString()")
-        if result['success']:
-            print(f"Selections: {result['result']}")
-        else:
-            print(f"Error: {result.get('stdout', 'Unknown error')}")
+#         # Example: Get the list of selections
+#         result = unitymol.send_command("getSelectionListString()")
+#         if result['success']:
+#             print(f"Selections: {result['result']}")
+#         else:
+#             print(f"Error: {result.get('stdout', 'Unknown error')}")
             
-        # Disconnect when done
-        unitymol.disconnect()
-    else:
-        print("Failed to connect to UnityMol. Make sure it's running with the ZMQ server enabled.")
+#         # Disconnect when done
+#         unitymol.disconnect()
+#     else:
+#         print("Failed to connect to UnityMol. Make sure it's running with the ZMQ server enabled.")
