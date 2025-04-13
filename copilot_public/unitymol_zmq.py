@@ -41,20 +41,42 @@ class UnityMolZMQ:
         self.socket = None
         self.connected = False
         
-    def connect(self):
+    def connect(self, timeout=10):
         """
         Establish connection to UnityMol's ZMQ server.
-        
+
+        Args:
+            timeout (int): Timeout value in seconds
+
         Returns:
             bool: True if connection was successful, False otherwise
         """
         try:
             self.socket = self.context.socket(zmq.REQ)
+            self.socket.setsockopt(zmq.LINGER, 0)  # Ne pas bloquer à la fermeture
             self.socket.connect(f"tcp://{self.host}:{self.port}")
-            self.connected = True
-            logger.info(f"Connected to UnityMol ZMQ server at tcp://{self.host}:{self.port}")
-            return True
-        except Exception as e:
+
+            # Envoyer un message de test
+            self.socket.send_string("import sys")
+
+           # Poll the socket with timeout
+            poller = zmq.Poller()
+            poller.register(self.socket, zmq.POLLIN)
+            socks = dict(poller.poll(timeout * 1000))  # Timeout in milliseconds
+
+            if self.socket in socks and socks[self.socket] == zmq.POLLIN:
+                reply = json.loads(self.socket.recv().decode())
+
+                if reply['success']:
+                    self.connected = True
+                    logger.info(f"Connection to UnityMol ZMQ server at tcp://{self.host}:{self.port} established.")
+                    return True
+                else:
+                    logger.error("Connection to UnityMol ZMQ server at tcp://{self.host}:{self.port} timed out.")
+                self.connected = False
+                return False
+
+        except zmq.error.ZMQError as e:
             logger.error(f"Failed to connect to UnityMol ZMQ server: {e}")
             self.connected = False
             return False
@@ -127,7 +149,8 @@ class UnityMolZMQ:
         """
         try:
             # Use a simple command that should always work if UnityMol is running
-            result = self.send_command("getSelectionListString()")
+#            result = self.send_command("getSelectionListString()")
+            result = self.send_command("UnityMolVersion.GetVersion()")
             # If we got any response, consider the connection successful
             return True
         except Exception as e:
