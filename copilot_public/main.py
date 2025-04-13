@@ -115,12 +115,21 @@ hash_string = m.hexdigest()
 import unitymol_zmq
 
 # Initialize UnityMolZMQ and test connection
-unitymol_zmq.unitymol = unitymol_zmq.UnityMolZMQ()
-if unitymol_zmq.unitymol.test_connection():
-    print("Successfully connected to UnityMol")
-else:
-    print("Failed to connect to UnityMol. Make sure it's running with the ZMQ server enabled.")
-    exit()
+print("MVB DEBUG\n\n\n")
+print(unitymol_zmq.unitymol)
+print("MVB DEBUG\n\n\n")
+if unitymol_zmq.unitymol is None:
+    print("ENDERED HERE\n\n\n")
+    unitymol_zmq.unitymol = unitymol_zmq.UnityMolZMQ()
+    unitymol_zmq.unitymol.connect()
+    #unitymol_zmq.unitymol.test_connection()
+print(unitymol_zmq.unitymol)
+print("MVB DEBUG\n\n\n")
+# if unitymol_zmq.unitymol.test_connection():
+#     print("Successfully connected to UnityMol")
+# else:
+#     print("Failed to connect to UnityMol. Make sure it's running with the ZMQ server enabled.")
+#     exit()
 
 # try to bring back the previous session
 work_dir = f"./{project_id}"
