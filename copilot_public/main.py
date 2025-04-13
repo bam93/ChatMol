@@ -15,7 +15,7 @@ import os
 import json
 import pickle
 import re
-import streamlit_analytics
+#import streamlit_analytics
 
 m = hashlib.sha256()
 st.set_page_config(layout="wide")
@@ -48,8 +48,8 @@ float_init()
 
 st.sidebar.title("Settings")
 mode = st.sidebar.selectbox("Mode", ["automatic", "manual"], index=0)
-with streamlit_analytics.track():
-    project_id = st.sidebar.text_input("Project Name", "Project-X")
+#with streamlit_analytics.track():
+project_id = st.sidebar.text_input("Project Name", "Project-X")
 openai_api_key = st.sidebar.text_input("OpenAI API key", type="password")
 
 try:
