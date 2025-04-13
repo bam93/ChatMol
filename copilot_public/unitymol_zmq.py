@@ -1,9 +1,16 @@
+# unitymol_zmq.py
+# UnityMol Development Script
+# (c) 2025 by Marc BAADEN
+# MIT license
+
 """
 UnityMol ZMQ Communication Module
 
 This module handles communication with UnityMol through its ZMQ server.
 It provides functions to send commands and receive responses.
 """
+
+__version__ = "0.1.0"
 
 import zmq
 import json
