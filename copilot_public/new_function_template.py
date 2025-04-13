@@ -9,11 +9,11 @@ def execute_unitymol_command(self, command: str):
         # Execute the command
         result = unitymol_zmq.unitymol.send_command_clean(command)
 
-        return f"Command {command} returned {result}"
+        return f"Command '{command}' returned {result}"
 
     except Exception as e:
         print(f"Error executing command '{command}': {e}")
-        return f"Command {command} failed with error {e} and feedback {result}"        
+        return f"Command '{command}' failed with error {e} and feedback {result}"        
 
 
 def translate_to_protein(self, seq: str, pname=None):

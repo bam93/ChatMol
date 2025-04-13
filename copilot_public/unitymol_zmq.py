@@ -121,9 +121,13 @@ class UnityMolZMQ:
 
             # Clean the response text
             cleaned_text = self._clean_text(response_text)
-            logger.info(f"Cleaned Response: {cleaned_text}")
+            logger.debug(f"Cleaned Response: {cleaned_text}")
 
             return cleaned_text
+
+        except Exception as e:
+            logger.exception(f"Error processing response: {e}")
+            return str(raw_response)
 
     def _clean_text(self, text):
         """
@@ -133,6 +137,8 @@ Cleans the text by removing HTML-like tags and specific substrings.
         text = re.sub(r'<[^>]+>', '', text)
         # Remove specific substrings like [Log]
         text = text.replace('[Log]', '')
+        # Remove specific substrings like [Log]
+        text = text.replace('>>>', '')
         # Normalize whitespace
         text = re.sub(r'\s+', ' ', text).strip()
         return text
