@@ -1,6 +1,3 @@
-# INCLUDE COMMON SETTINGS
-include config/env
-
 
 .PHONY: info
 
