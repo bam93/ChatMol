@@ -2,7 +2,6 @@ import json
 import types
 import unitymol_zmq
 
-#def execute_unitymol_command(self, cmd: str) -> dict:
 def execute_unitymol_command(self, command: str):
 
     try:
@@ -14,6 +13,19 @@ def execute_unitymol_command(self, command: str):
     except Exception as e:
         print(f"Error executing command '{command}': {e}")
         return f"Command '{command}' failed with error {e} and feedback {result}"        
+
+
+def load_protein_into_unitymol(self, protein_pdb_id: str):
+
+    try:
+        # Execute the command
+        result = unitymol_zmq.unitymol.send_command_clean(f"fetch('{protein_pdb_id}')")
+
+        return f"Opening PDB ID '{protein_pdb_id}' returned {result}"
+
+    except Exception as e:
+        print(f"Error fetching PDB ID '{protein_pdb_id}': {e}")
+        return f"Fetch('{protein_pdb_id}') failed with error {e} and feedback {result}"        
 
 
 def translate_to_protein(self, seq: str, pname=None):
@@ -185,6 +197,20 @@ function_descriptions = [{ # This is the description of the function
         "required": ["command"],
     },
 },
+{
+    "type": "function",
+    "function": {
+        "name": "load_protein_into_unitymol",
+        "description": "fetch a protein from PDB",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "protein_pdb_id": {"type": "string", "description": "PDB ID of a protein. It is usually a four character code"},
+            },
+        },
+        "required": ["protein_pdb_id"],
+    },
+},                         
 {  # This is the description of the function
     "type": "function",
     "function": {
@@ -273,6 +299,13 @@ test_data = {
             "command": "getSelectionListString()",
         },
         "output": "The list of current selections as bracketed list",
+    },
+    "load_protein_into_unitymol": {
+        "input": {
+            "self": None,
+            "protein_pdb_id": "1kx2",
+        },
+        "output": "Characteristics of this protein database file",
     },
     "translate_to_protein": {
         "input": {
