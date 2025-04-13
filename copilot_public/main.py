@@ -116,7 +116,7 @@ import unitymol_zmq
 
 # Initialize UnityMolZMQ and connect once
 if unitymol_zmq.unitymol is None:
-    print("Debug: Establishing ZMQ connection to UnityMol")
+    print("\nDebug: Attempting to establish connection to UnityMol ZMQ server")
     unitymol_zmq.unitymol = unitymol_zmq.UnityMolZMQ()
     unitymol_zmq.unitymol.connect()
 

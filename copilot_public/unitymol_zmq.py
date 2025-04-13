@@ -53,10 +53,10 @@ class UnityMolZMQ:
         """
         try:
             self.socket = self.context.socket(zmq.REQ)
-            self.socket.setsockopt(zmq.LINGER, 0)  # Ne pas bloquer à la fermeture
+            self.socket.setsockopt(zmq.LINGER, 0)  # Don't block at the end
             self.socket.connect(f"tcp://{self.host}:{self.port}")
 
-            # Envoyer un message de test
+            # Send a test message
             self.socket.send_string("import sys")
 
            # Poll the socket with timeout
@@ -64,26 +64,23 @@ class UnityMolZMQ:
             poller.register(self.socket, zmq.POLLIN)
             socks = dict(poller.poll(timeout * 1000))  # Timeout in milliseconds
 
-            if self.socket in socks and socks[self.socket] == zmq.POLLIN:
+            if socks.get(self.socket) == zmq.POLLIN:
                 reply = json.loads(self.socket.recv().decode())
 
                 if reply['success']:
                     self.connected = True
-                    logger.info(f"Connection to UnityMol ZMQ server at tcp://{self.host}:{self.port} established.")
+                    logger.info(f"UnityMol ZMQ server connected OK to tcp://{self.host}:{self.port}.\n")
                     return True
                 else:
-                    logger.error(f"Connection to UnityMol ZMQ server at tcp://{self.host}:{self.port} timed out.")
-                self.connected = False
-                return False
+                    logger.error(f"UnityMol ZMQ server bad response from tcp://{self.host}:{self.port}.\n")
             else:
-                logger.error(f"No socket for UnityMol ZMQ server at tcp://{self.host}:{self.port}.")
-                self.connected = False
-                return False
+                logger.error(f"UnityMol ZMQ server at tcp://{self.host}:{self.port} did not respond.\n")
                 
         except zmq.error.ZMQError as e:
-            logger.error(f"Failed to connect to UnityMol ZMQ server: {e}")
-            self.connected = False
-            return False
+            logger.error(f"Failed to connect to UnityMol ZMQ server: {e}\n")
+
+        self.connected = False
+        return False
     
     def disconnect(self):
         """
