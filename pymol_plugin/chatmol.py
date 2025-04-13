@@ -8,8 +8,8 @@ from typing import Dict, List, Optional, Literal, Union
 from datetime import datetime
 from pymol import cmd
 
-
 class PyMOLCommandHandler(http.server.BaseHTTPRequestHandler):
+
     def __init__(self):
 
         from http import HTTPStatus
@@ -77,12 +77,13 @@ class PyMOLAgent:
     def __init__(
         self,
         model: str = "gpt-4o",
-        provider: Optional[Literal["openai", "anthropic"]] = None,
+        provider: Optional[Literal["openai", "anthropic", "deepseek"]] = None,
         system_message: Optional[str] = None,
     ):
         self.config_dir = os.path.expanduser("~/.PyMOL")
         self.config_file = os.path.join(self.config_dir, "config.json")
-        os.makedirs(self.config_dir, exist_ok=True)
+        if not os.path.exists(self.config_dir):
+            os.makedirs(self.config_dir)
         
         self.model = model
         self.provider = provider or self.detect_provider(model)
@@ -91,7 +92,7 @@ class PyMOLAgent:
         self.api_key = self.get_api_key()
         
         if not self.api_key:
-            raise ValueError(f"Please set {'ANTHROPIC' if self.provider == 'anthropic' else 'OPENAI'}_API_KEY environment variable or configure it in {self.config_file}")
+            Warning(f"Please set {'ANTHROPIC' if self.provider == 'anthropic' else 'OPENAI'}_API_KEY environment variable or configure it in {self.config_file}")
 
         self.system_message = system_message or """You are a PyMOL expert assistant, specialized in providing command line code solutions related to PyMOL. 
 Generate clear and effective solutions. 
@@ -145,6 +146,7 @@ show cartoon
             with open(self.config_file, 'r') as f:
                 return json.load(f)
         except FileNotFoundError:
+            # initialize config file
             self.save_config(default_config)
             return default_config
         except json.JSONDecodeError:
@@ -154,6 +156,7 @@ show cartoon
 
     def save_config(self, config) -> None:
         """Save configuration to JSON file."""
+        # current_config = self.load_config()
         try:
             with open(self.config_file, 'w') as f:
                 json.dump(config, f, indent=2)
@@ -171,10 +174,11 @@ show cartoon
         if self.provider == "deepseek":
             return os.getenv("DEEPSEEK_API_KEY") or self.config["api_keys"].get(self.provider, "")
 
-    def set_api_key(self, api_key: str) -> None:
+    def set_api_key(self, provider, api_key: str) -> None:
         """Set the API key for the current provider."""
         api_key = api_key.strip()
         self.api_key = api_key
+        self.provider = provider
         
         # Update config
         self.config["api_keys"][self.provider] = api_key
@@ -205,9 +209,8 @@ show cartoon
         
         if new_provider != self.provider:
             self.provider = new_provider
-            self.save_config(self.config)
             self.api_key = self.get_api_key()
-            print(f"Provider automatically switched to {new_provider}")
+            print(f"Provider switched to {new_provider}")
             
         return f"Model updated to: {self.model}"
 
@@ -468,6 +471,7 @@ cmd.extend("chat", pymol_assistant.send_message)
 cmd.extend("chatlite", pymol_assistant.chatlite)
 cmd.extend("update_model", pymol_assistant.update_model)
 cmd.extend("init_server", init_server)
+
 
 cmd.extend("save_conversation", pymol_assistant.save_conversation)
 cmd.extend("load_conversation", pymol_assistant.load_conversation)
