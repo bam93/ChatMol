@@ -101,25 +101,39 @@ class UnityMolZMQ:
 
     def send_command_clean(self, command):
         """
-        Sends a command and returns the cleaned text response.
-        """
-        raw_json = self.send_command(command)
-        logger.info(f"\n\nHERE I AM!!! {raw_json}")
+Sends a command and returns the cleaned text response.
+"""
+        raw_response = self.send_command(command)
+
+        # Ensure the response is a string
+        if isinstance(raw_response, bytes):
+            raw_response = raw_response.decode('utf-8')
+
+        # Attempt to parse the response as JSON
         try:
-            response_data="Success "+str(raw_json['success'])+" with result "+raw_json['result']+" and output "+raw_json['stdout']
-            # Clean the content
-            cleaned = self._clean_text(response_data)
-            logger.info(f"5: {cleaned}")
-            return cleaned
-        except Exception as e:
-            logger.info(f"Exception!!! {e} with {raw_json} \n\n")
-            # Handle exceptions and return raw response if parsing fails
-            return raw_json
+            response_data = json.loads(raw_response)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON: {e}")
+            return raw_response  # Return raw response if JSON parsing fails
+
+        # Extract relevant fields with defaults
+        success = response_data.get('success', False)
+        result = response_data.get('result', '')
+        stdout = response_data.get('stdout', '')
+
+        # Construct the response string
+        response_text = f"Success: {success} | Result: {result} | Output: {stdout}"
+
+        # Clean the response text
+        cleaned_text = self._clean_text(response_text)
+        logger.info(f"Cleaned Response: {cleaned_text}")
+
+        return cleaned_text
 
     def _clean_text(self, text):
         """
-        Cleans the text by removing HTML-like tags and specific substrings.
-        """
+Cleans the text by removing HTML-like tags and specific substrings.
+"""
         # Remove HTML-like tags
         text = re.sub(r'<[^>]+>', '', text)
         # Remove specific substrings like [Log]
@@ -127,6 +141,7 @@ class UnityMolZMQ:
         # Normalize whitespace
         text = re.sub(r'\s+', ' ', text).strip()
         return text
+
 
     def send_command(self, command):
         """
