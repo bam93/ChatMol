@@ -101,34 +101,29 @@ class UnityMolZMQ:
 
     def send_command_clean(self, command):
         """
-Sends a command and returns the cleaned text response.
-"""
+        Sends a command and returns the cleaned text response.
+        """
         raw_response = self.send_command(command)
 
-        # Ensure the response is a string
-        if isinstance(raw_response, bytes):
-            raw_response = raw_response.decode('utf-8')
+        # Verify that the response is a dictionary
+        if not isinstance(raw_response, dict):
+            logger.error(f"Expected dict, got {type(raw_response)}: {raw_response}")
+            return str(raw_response)
 
-        # Attempt to parse the response as JSON
         try:
-            response_data = json.loads(raw_response)
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse JSON: {e}")
-            return raw_response  # Return raw response if JSON parsing fails
+            # Extract relevant fields with defaults
+            success = raw_response.get('success', False)
+            result = raw_response.get('result', '')
+            stdout = raw_response.get('stdout', '')
 
-        # Extract relevant fields with defaults
-        success = response_data.get('success', False)
-        result = response_data.get('result', '')
-        stdout = response_data.get('stdout', '')
+            # Construct the response string
+            response_text = f"Success: {success} | Result: {result} | Output: {stdout}"
 
-        # Construct the response string
-        response_text = f"Success: {success} | Result: {result} | Output: {stdout}"
+            # Clean the response text
+            cleaned_text = self._clean_text(response_text)
+            logger.info(f"Cleaned Response: {cleaned_text}")
 
-        # Clean the response text
-        cleaned_text = self._clean_text(response_text)
-        logger.info(f"Cleaned Response: {cleaned_text}")
-
-        return cleaned_text
+            return cleaned_text
 
     def _clean_text(self, text):
         """
