@@ -69,12 +69,12 @@ class UnityMolZMQ:
 
                 if reply['success']:
                     self.connected = True
-                    logger.info(f"UnityMol ZMQ server connected OK to tcp://{self.host}:{self.port}.\n")
+                    logger.info(f"server connected OK to tcp://{self.host}:{self.port}.\n")
                     return True
                 else:
-                    logger.error(f"UnityMol ZMQ server bad response from tcp://{self.host}:{self.port}.\n")
+                    logger.error(f"server bad response from tcp://{self.host}:{self.port}.\n")
             else:
-                logger.error(f"UnityMol ZMQ server at tcp://{self.host}:{self.port} did not respond.\n")
+                logger.error(f"server at tcp://{self.host}:{self.port} did not respond.\n")
                 
         except zmq.error.ZMQError as e:
             logger.error(f"Failed to connect to UnityMol ZMQ server: {e}\n")
