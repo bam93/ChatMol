@@ -7,7 +7,7 @@ def execute_unitymol_command(self, command: str):
 
     try:
         # Execute the command
-        result = json.dumps(unitymol_zmq.unitymol.send_command(command))
+        result = unitymol_zmq.unitymol.send_command_clean(command)
 
         return f"Command {command} returned {result}"
 

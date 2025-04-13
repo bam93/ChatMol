@@ -15,6 +15,7 @@ __version__ = "0.1.0"
 import zmq
 import json
 import logging
+import re
 
 unitymol = None
 
@@ -97,7 +98,36 @@ class UnityMolZMQ:
             self.socket.close()
             self.connected = False
             logger.info("Disconnected from UnityMol ZMQ server")
-    
+
+    def send_command_clean(self, command):
+        """
+        Sends a command and returns the cleaned text response.
+        """
+        raw_json = self.send_command(command)
+        logger.info(f"\n\nHERE I AM!!! {raw_json}")
+        try:
+            response_data="Success "+str(raw_json['success'])+" with result "+raw_json['result']+" and output "+raw_json['stdout']
+            # Clean the content
+            cleaned = self._clean_text(response_data)
+            logger.info(f"5: {cleaned}")
+            return cleaned
+        except Exception as e:
+            logger.info(f"Exception!!! {e} with {raw_json} \n\n")
+            # Handle exceptions and return raw response if parsing fails
+            return raw_json
+
+    def _clean_text(self, text):
+        """
+        Cleans the text by removing HTML-like tags and specific substrings.
+        """
+        # Remove HTML-like tags
+        text = re.sub(r'<[^>]+>', '', text)
+        # Remove specific substrings like [Log]
+        text = text.replace('[Log]', '')
+        # Normalize whitespace
+        text = re.sub(r'\s+', ' ', text).strip()
+        return text
+
     def send_command(self, command):
         """
         Send a command to UnityMol and receive the response.
