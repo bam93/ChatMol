@@ -1,3 +1,4 @@
+import json
 import types
 import unitymol_zmq
 
@@ -6,22 +7,13 @@ def execute_unitymol_command(self, command: str):
 
     try:
         # Execute the command
-        result = unitymol_zmq.unitymol.send_command(command)
+        result = json.dumps(unitymol_zmq.unitymol.send_command(command))
 
-        return {
-            "success": result.get("success", False),
-            "result": result.get("result", ""),
-            "stdout": result.get("stdout", ""),
-            "command": command
-        }
+        return f"Command {command} returned {result}"
+
     except Exception as e:
         print(f"Error executing command '{command}': {e}")
-        return {
-            "success": False,
-            "result": "",
-            "stdout": str(e),
-            "command": command
-        }
+        return f"Command {command} failed with error {e} and feedback {result}"        
 
 
 def translate_to_protein(self, seq: str, pname=None):
